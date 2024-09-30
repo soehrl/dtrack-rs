@@ -1,6 +1,18 @@
-use std::ffi::{c_char, c_int, c_ushort, c_void};
+use std::ffi::{c_char, c_int, c_uint, c_ushort, c_void};
+
+#[derive(Debug)]
+#[repr(C)]
+pub struct DTrackBody {
+    id: c_int,
+    quality: std::ffi::c_double,
+    loc: [std::ffi::c_double; 3],
+    rot: [std::ffi::c_double; 9],
+    covref: [std::ffi::c_double; 3],
+    cov: [std::ffi::c_double; 36],
+}
 
 extern "C" {
+
     fn sdk_new_with_connection(connection: *const c_char) -> *mut c_void;
     fn sdk_delete(sdk: *mut c_void);
 
@@ -16,6 +28,11 @@ extern "C" {
     fn sdk_receive(sdk: *mut c_void) -> bool;
     fn sdk_start_measurement(sdk: *mut c_void) -> bool;
     fn sdk_stop_measurement(sdk: *mut c_void) -> bool;
+
+    // Parser functions
+    fn get_latency_usec(sdk: *mut c_void) -> c_uint;
+    fn sdk_get_num_body(sdk: *mut c_void) -> c_int;
+    fn sdk_get_body(sdk: *mut c_void, index: c_int) -> *const DTrackBody;
 }
 
 #[derive(Debug)]
@@ -87,5 +104,22 @@ impl DTrack {
 
     pub fn stop_measurement(&self) -> bool {
         unsafe { sdk_stop_measurement(self.sdk) }
+    }
+
+    pub fn latency(&self) -> std::time::Duration {
+        std::time::Duration::from_micros(unsafe { get_latency_usec(self.sdk) as u64 })
+    }
+
+    pub fn num_bodies(&self) -> usize {
+        unsafe { sdk_get_num_body(self.sdk) as usize } 
+    }
+
+    pub fn body(&self, index: usize) -> Option<&DTrackBody> {
+        let body = unsafe { sdk_get_body(self.sdk, index as c_int) };
+        if body.is_null() {
+            None
+        } else {
+            Some(unsafe { &*body })
+        }
     }
 }

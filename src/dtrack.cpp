@@ -64,4 +64,31 @@ bool sdk_stop_measurement(void *sdk) {
   return ((DTrackSDK *)sdk)->stopMeasurement();
 }
 
+// Parser functions
+unsigned int sdk_get_frame_counter(void *sdk) {
+  return ((DTrackSDK *)sdk)->getFrameCounter();
+}
+
+double sdk_get_time_stamp(void *sdk) { return ((DTrackSDK *)sdk)->getTimeStamp(); }
+
+double sdk_get_time_stamp_sec(void *sdk) {
+  return ((DTrackSDK *)sdk)->getTimeStampSec();
+}
+
+unsigned int sdk_get_time_stamp_usec(void *sdk) {
+  return ((DTrackSDK *)sdk)->getTimeStampUsec();
+}
+
+unsigned int get_latency_usec(void *sdk) {
+  return ((DTrackSDK *)sdk)->getLatencyUsec();
+}
+
+int sdk_get_num_bodies(void *sdk) {
+  return ((DTrackSDK *)sdk)->getNumBody();
+}
+
+const void* sdk_get_body(void *sdk, int index) {
+  return ((DTrackSDK *)sdk)->getBody(index);
+}
+
 }
